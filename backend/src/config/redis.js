@@ -1,17 +1,18 @@
-import Redis from 'ioredis';
+import { createClient } from 'redis';
 
-let redis;
-export function getRedis() {
-  if (!process.env.REDIS_URL) return null;
-  if (!redis) {
-    redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 1, lazyConnect: true });
-    redis.on('error', () => {}); // Cache failures must not break reward persistence.
-  }
-  return redis;
-}
+const redisClient = createClient({
+    username: 'default',
+    password: process.env.REDISPASSWORD,
+    socket: {
+        host: 'redis-16714.c14.us-east-1-2.ec2.cloud.redislabs.com',
+        port: 16714
+    }
+});
+redisClient.on('error', err => console.log('Redis Client Error', err));
 
-export async function cacheJson(key, value, ttlSeconds) {
-  const client = getRedis();
-  if (!client || ttlSeconds <= 0) return;
-  try { await client.set(key, JSON.stringify(value), 'EX', ttlSeconds); } catch { /* cache is optional */ }
-}
+   
+
+
+export default redisClient;
+
+
