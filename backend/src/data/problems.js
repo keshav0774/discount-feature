@@ -1,3 +1,6 @@
+const starter = "write your code here";
+
+
 export const dsaChallenges = [
   // 1
   {

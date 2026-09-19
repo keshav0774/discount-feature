@@ -1,4 +1,4 @@
-import { dsaChallenges, promptChallenges ,systemDesignChallenges, vulnerabilityChallenges} from "../data/challenges"
+import { dsaChallenges, promptChallenges ,systemDesignChallenges, vulnerabilityChallenges} from "../data/problems.js"
 
 export const dsaProblem = async(req, res, next)=>{
     try {
