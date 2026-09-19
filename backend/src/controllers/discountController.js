@@ -56,7 +56,7 @@ export async function submit(req, res, next) {
 }
 
 
-export async function verifyCoupon(req, res, next) {
+export async function (req, res, next) {
   try {
     const couponCode = String(req.body.couponCode || '')
       .trim()
