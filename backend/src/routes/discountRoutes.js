@@ -1,0 +1,16 @@
+import { Router } from 'express';
+import { requireUser } from '../middleware/auth.js';
+import { claim, randomChallenge, skip, status, submit, validateCoupon } from '../controllers/discountController.js';
+const router = Router();
+const challenge = (type) => (req, res, next) => { req.discountChallengeType = type; next(); };
+router.use(requireUser);
+router.get('/challenges/:type/random', randomChallenge);
+router.post('/solve-ptod', challenge('solve-ptod'), submit);
+router.post('/write-prompt', challenge('write-prompt'), submit);
+router.post('/debug-backend', challenge('debug-backend'), submit);
+router.post('/find-vulnerability', challenge('find-vulnerability'), submit);
+router.post('/skip', skip);
+router.get('/status', status);
+router.post('/validate', validateCoupon);
+router.post('/claim', claim);
+export default router;
