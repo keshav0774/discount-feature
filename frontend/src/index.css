@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Perspective is needed for the 3D cube and isn't a Tailwind utility by default */
+.cube-perspective {
+  perspective: 400px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.face-front { transform: translateZ(24px); }
+.face-right { transform: rotateY(90deg) translateZ(24px); }
+.face-back { transform: rotateY(180deg) translateZ(24px); }
+.face-left { transform: rotateY(-90deg) translateZ(24px); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
