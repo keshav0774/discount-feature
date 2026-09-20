@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const FAQS = [
   {
@@ -34,11 +35,11 @@ export default function FAQ() {
     <section className="py-5 pb-16">
       <div className="max-w-[1180px] mx-auto px-7">
         <div className="text-center mb-8">
-          <span className="inline-block font-mono text-[11px] text-accent bg-accent-soft border border-accent/30 px-3 py-1 rounded-full mb-4">
+          <span className="inline-block font-mono text-[11px] text-text bg-bg-card border border-border px-3 py-1 rounded-full mb-4">
             FAQs
           </span>
           <h2 className="font-display font-bold text-[28px] mb-2">
-            Your Questions, <em className="not-italic text-accent">Answered</em>
+            Your Questions, <em className="not-italic text-text">Answered</em>
           </h2>
           <p className="text-text-dim text-sm">Get instant answers to most common questions about Strike.</p>
         </div>
@@ -54,21 +55,27 @@ export default function FAQ() {
                   aria-expanded={open}
                 >
                   {item.q}
-                  <span
-                    className={
-                      'text-text-faint text-base ml-3 shrink-0 transition-transform ' +
-                      (open ? 'rotate-45 text-accent' : '')
-                    }
+                  <motion.span
+                    animate={{ rotate: open ? 45 : 0, color: open ? '#f5f5f6' : '#55565d' }}
+                    transition={{ duration: 0.2 }}
+                    className="text-base ml-3 shrink-0"
                   >
                     +
-                  </span>
+                  </motion.span>
                 </button>
-                <div
-                  className="overflow-hidden transition-[max-height] duration-250 ease-out"
-                  style={{ maxHeight: open ? '200px' : '0px' }}
-                >
-                  <div className="px-[18px] pb-4 text-text-dim text-[13.5px]">{item.a}</div>
-                </div>
+                <AnimatePresence initial={false}>
+                  {open && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-[18px] pb-4 text-text-dim text-[13.5px]">{item.a}</div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}

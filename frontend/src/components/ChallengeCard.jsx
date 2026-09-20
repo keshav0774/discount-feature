@@ -1,9 +1,13 @@
+import { motion } from 'framer-motion';
+
 export default function ChallengeCard({ id, icon, title, desc, meta, onSelect }) {
   return (
-    <button
+    <motion.button
       onClick={() => onSelect(id)}
-      className="text-left relative bg-bg-card border border-border rounded-md p-5 transition-all
-                 hover:-translate-y-1 hover:bg-bg-card-hover hover:border-border-bright
+      whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
+      className="text-left relative bg-bg-card border border-border rounded-md p-5 transition-colors
+                 hover:bg-bg-card-hover hover:border-border-bright
                  focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/40 group"
     >
       <div className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center font-mono font-bold text-[15px] mb-3.5 bg-bg-elevated border border-border text-text">
@@ -21,6 +25,6 @@ export default function ChallengeCard({ id, icon, title, desc, meta, onSelect })
       <div className="text-[13px] font-semibold text-text flex items-center gap-1.5 group-hover:text-white">
         Start Challenge →
       </div>
-    </button>
+    </motion.button>
   );
 }

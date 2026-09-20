@@ -1,10 +1,16 @@
+import { motion } from 'framer-motion';
+
 export default function Hero() {
   return (
     <header className="py-16 md:py-[72px]">
       <div className="max-w-[1180px] mx-auto px-7 grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] items-center gap-10">
-        <div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        >
           <div className="inline-flex items-center gap-2 font-mono text-[11.5px] tracking-wide text-text-dim bg-bg-card border border-border px-3.5 py-1.5 rounded-full mb-5">
-            ⚡ LEVEL UP YOUR CODING
+             LEVEL UP YOUR CODING
           </div>
           <h1 className="font-display font-extrabold text-[32px] md:text-[44px] leading-[1.14] tracking-tight mb-4 drop-shadow-[0_0_24px_rgba(245,245,246,0.15)]">
             Take control of your
@@ -14,10 +20,14 @@ export default function Hero() {
           <p className="text-text-dim text-base max-w-[460px] mb-7">
             Master DSA, System Design &amp; AI with interactive coding environments
           </p>
-          <button className="inline-flex items-center gap-2 font-semibold text-[14.5px] bg-bg-card border border-border-bright text-text px-7 py-3.5 rounded-full shadow-lg shadow-white/5 transition-all hover:-translate-y-0.5 hover:bg-bg-card-hover hover:border-white/30">
+          <motion.button
+            whileHover={{ y: -2, scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center gap-2 font-semibold text-[14.5px] bg-bg-card border border-border-bright text-text px-7 py-3.5 rounded-full shadow-lg shadow-white/5"
+          >
             Join Us →
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
         <div className="relative h-[180px] md:h-[300px] flex items-center justify-center order-first md:order-none" aria-hidden="true">
           <div className="absolute w-60 h-60 rounded-full border border-dashed border-white/10 animate-orbit-spin" />
