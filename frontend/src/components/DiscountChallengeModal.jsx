@@ -26,8 +26,8 @@ const CHALLENGES = [
     id: 'debug',
     accent: 'debug',
     icon: '🐞',
-    title: 'Debug the Backend',
-    desc: 'Find and fix the bug in a frontend or backend code snippet.',
+    title: 'System Design Challenge',
+    desc: 'Design a system for the given problem before the timer runs out.',
     meta: ['10–15 min'],
   },
   {
@@ -45,7 +45,6 @@ export default function DiscountChallengeModal({ open, onClose }) {
   const [stage, setStage] = useState('select');
   const [loadingText, setLoadingText] = useState('');
   const [task, setTask] = useState(null);
-  const [selectedOptionId, setSelectedOptionId] = useState(null);
   const [taskError, setTaskError] = useState('');
   const [result, setResult] = useState(null); // { solved, discountValue, couponCode, expiresAt }
 
@@ -54,7 +53,6 @@ export default function DiscountChallengeModal({ open, onClose }) {
   function reset() {
     setStage('select');
     setTask(null);
-    setSelectedOptionId(null);
     setTaskError('');
     setResult(null);
     timer.stop();
@@ -87,26 +85,23 @@ export default function DiscountChallengeModal({ open, onClose }) {
     setTimeout(() => handleSkip(), 900);
   }
 
-  async function handleSubmitAnswer() {
-    if (!selectedOptionId || !task) return;
+  // No MCQ answer to check anymore — these are open-ended problems.
+  // The user reads the problem, solves it in their own head/editor,
+  // and self-declares completion.
+  async function handleMarkSolved() {
+    if (!task) return;
     timer.stop();
     setStage('loading');
-    setLoadingText('// verifying your answer…');
-    const chosen = task.options.find((o) => o.id === selectedOptionId);
-    const res = await DiscountAPI.completeChallenge(task.taskId, chosen?.correct === true);
-
-    if (!res.success) {
-      setStage('run');
-      setTaskError('That wasn\u2019t correct — try another option or cancel to take the base discount.');
-      timer.start(60); // small grace window, mock only
-      return;
-    }
-
+    setLoadingText('// unlocking your discount…');
+    const res = await DiscountAPI.completeChallenge(task.taskId);
     setResult({ solved: true, ...res });
     setStage('reveal');
   }
 
   if (!open) return null;
+
+  const problem = task?.problem;
+  const statementText = problem?.statement || problem?.problemStatement || '';
 
   return (
     <div
@@ -139,7 +134,7 @@ export default function DiscountChallengeModal({ open, onClose }) {
             </div>
 
             <div className="px-8 pt-5 pb-7 border-t border-border mt-2 flex items-center justify-between flex-wrap gap-3">
-              <span className="text-[12.5px] text-text-faint">Discount range is set by Strike and verified server-side.</span>
+              <span className="text-[12.5px] text-text-faint">A new problem is picked for you every day.</span>
               <button onClick={handleSkip} className="text-text-dim underline underline-offset-4 decoration-border-bright hover:text-text hover:decoration-text-dim text-sm font-semibold">
                 Skip &amp; Get 20% OFF
               </button>
@@ -154,9 +149,9 @@ export default function DiscountChallengeModal({ open, onClose }) {
           </div>
         )}
 
-        {stage === 'run' && task && (
+        {stage === 'run' && task && problem && (
           <div className="px-8 pt-7 pb-8">
-            <div className="flex items-center justify-between mb-4.5 mb-[18px]">
+            <div className="flex items-center justify-between mb-[18px]">
               <button
                 onClick={() => { reset(); }}
                 className="text-text-faint text-[13px] hover:text-text-dim bg-transparent border-none"
@@ -166,37 +161,29 @@ export default function DiscountChallengeModal({ open, onClose }) {
               <ChallengeTimer label={timer.label} urgent={timer.remaining <= 30} />
             </div>
 
-            <div className="bg-[#0a0a0c] border border-border rounded-md p-4.5 p-[18px] font-mono text-[13px] text-text-dim mb-4.5 mb-[18px] leading-relaxed">
-              <div><span className="text-text-dim">function</span> <span className="text-text">isValid</span>(arr) {'{'}</div>
-              <div>&nbsp;&nbsp;<span className="text-text-dim">return</span> {task.prompt.line2}</div>
-              <div>{'}'}</div>
-              <div className="mt-2.5 text-text-faint">// {task.prompt.question}</div>
+            <div className="font-display font-bold text-lg mb-2">{problem.title}</div>
+
+            <div className="bg-[#0a0a0c] border border-border rounded-md p-[18px] text-[13.5px] text-text-dim leading-relaxed mb-4">
+              {statementText}
             </div>
 
-            <div className="grid gap-2 mt-3.5">
-              {task.options.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => { setSelectedOptionId(opt.id); setTaskError(''); }}
-                  className={
-                    'text-left bg-bg-card border rounded-sm px-3.5 py-3 font-mono text-[12.5px] transition-colors ' +
-                    (selectedOptionId === opt.id
-                      ? 'border-accent text-text bg-accent-soft'
-                      : 'border-border text-text-dim hover:border-border-bright hover:text-text')
-                  }
-                >
-                  {opt.text}
-                </button>
-              ))}
-            </div>
+            {problem.code && (
+              <pre className="bg-[#0a0a0c] border border-border rounded-md p-[18px] font-mono text-[12px] text-text-dim leading-relaxed mb-4 overflow-x-auto whitespace-pre">
+                {problem.code.trim()}
+              </pre>
+            )}
 
             {taskError && (
-              <div className="bg-danger/10 border border-danger/30 text-danger text-[12.5px] px-3.5 py-2.5 rounded-sm mt-3">
+              <div className="bg-danger/10 border border-danger/30 text-danger text-[12.5px] px-3.5 py-2.5 rounded-sm mt-1 mb-1">
                 {taskError}
               </div>
             )}
 
-            <div className="flex gap-3 mt-5">
+            <p className="text-text-faint text-[12px] mb-4">
+              Work through this on your own, then mark it solved to unlock your discount.
+            </p>
+
+            <div className="flex gap-3 mt-2">
               <button
                 onClick={() => { reset(); }}
                 className="flex-1 text-center py-3 rounded-sm bg-bg-card text-text-dim border border-border hover:text-text hover:border-border-bright"
@@ -204,11 +191,10 @@ export default function DiscountChallengeModal({ open, onClose }) {
                 Cancel
               </button>
               <button
-                onClick={handleSubmitAnswer}
-                disabled={!selectedOptionId}
-                className="flex-1 text-center py-3 rounded-sm font-semibold bg-text text-bg disabled:opacity-30 disabled:cursor-not-allowed transition-opacity hover:opacity-90"
+                onClick={handleMarkSolved}
+                className="flex-1 text-center py-3 rounded-sm font-semibold bg-text text-bg transition-opacity hover:opacity-90"
               >
-                Submit Answer
+                Mark as Solved
               </button>
             </div>
           </div>

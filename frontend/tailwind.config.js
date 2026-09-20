@@ -21,9 +21,9 @@ export default {
         danger: '#ff6b6b',
       },
       fontFamily: {
-        display: ['Sora', 'sans-serif'],
-        sans: ['Inter', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+       display: ['Sora', 'sans-serif'],
+       sans: ['Inter', 'sans-serif'],
+       mono: ['"JetBrains Mono"', 'monospace'],
       },
       borderRadius: {
         lg: '20px',

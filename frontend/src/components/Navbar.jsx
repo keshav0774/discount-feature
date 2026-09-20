@@ -3,6 +3,12 @@ import { motion } from 'framer-motion';
 const NAV_ITEMS = ['Home', 'Courses', 'Practice', 'CodeArena', 'Quiz', 'System Design', 'Contests'];
 
 export default function Navbar() {
+  function handleNavClick(e, item) {
+  if (item !== 'Courses') return; // baaki links abhi kuch nahi karte, bas Courses handle karo
+  e.preventDefault();
+  const el = document.getElementById('courses');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+ }
   return (
     <nav className="sticky top-0 z-[100] bg-bg/85 backdrop-blur-md border-b border-border">
       <div className="max-w-[1180px] mx-auto px-7 h-[68px] flex items-center justify-between gap-6">
@@ -12,7 +18,8 @@ export default function Navbar() {
           {NAV_ITEMS.map((item) => (
             <motion.a
               key={item}
-              href="#"
+              href={item === 'Home' ? '#' : item === 'Courses' ? '#courses' : '#'}
+              onClick={(e) => handleNavClick(e, item)}
               whileHover={{ scale: item === 'Home' ? 1 : 1.04 }}
               className={
                 'text-[13.5px] font-medium px-4 py-2 rounded-full transition-colors ' +

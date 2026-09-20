@@ -7,12 +7,15 @@ import FeatureCards from './components/FeatureCards.jsx';
 import FAQ from './components/FAQ.jsx';
 import Footer from './components/Footer.jsx';
 import DiscountChallengeModal from './components/DiscountChallengeModal.jsx';
+import CursorGlow from './components/CursorGlow.jsx';
+
 
 export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen">
+      <CursorGlow />
       <Navbar />
       <DiscountBanner onOpen={() => setModalOpen(true)} />
       <Hero />
