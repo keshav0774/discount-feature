@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Navbar from './components/Navbar.jsx';
 import DiscountBanner from './components/DiscountBanner.jsx';
 import Hero from './components/Hero.jsx';
+import Courses from './components/Courses.jsx';
 import FeatureCards from './components/FeatureCards.jsx';
 import FAQ from './components/FAQ.jsx';
 import Footer from './components/Footer.jsx';
@@ -15,6 +16,7 @@ export default function App() {
       <Navbar />
       <DiscountBanner onOpen={() => setModalOpen(true)} />
       <Hero />
+      <Courses />
       <FeatureCards />
       <FAQ />
       <Footer />
