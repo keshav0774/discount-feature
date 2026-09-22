@@ -5,14 +5,21 @@ import {
   getVulnerabilityProblem,
 } from '../utlis/dailyChallenge';
 import { validateSolution } from './aiValidator.js';
+import { devWords } from '../data/devWords.js';
 
 const OFFER_KEY = 'strike_discount_state';
 const CLAIM_KEY = 'strike_last_claim';
+const LAST_COUPON_KEY = 'strike_last_coupon';
 
-const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — change to 4 * 24 * 60 * 60 * 1000 if you want 4
-const OFFER_TTL_MS = 5 * 60 * 1000;
+const COOLDOWN_MS = 4 * 24 * 60 * 60 * 1000; 
+const OFFER_TTL_MS = 4 * 24 * 60 * 60 * 1000;
 const MIN_RANGE = 20;
 const MAX_RANGE = 30;
+
+function generateCouponCode(discountPercent) {
+  const word = devWords[Math.floor(Math.random() * devWords.length)];
+  return word.toUpperCase() + discountPercent;
+}
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -56,6 +63,20 @@ function recordClaim() {
   localStorage.setItem(CLAIM_KEY, JSON.stringify({ claimedAt: Date.now() }));
 }
 
+// ---- last-claimed coupon (shown read-only during cooldown) ----
+function writeLastCoupon(code, discountValue) {
+  localStorage.setItem(LAST_COUPON_KEY, JSON.stringify({ code, discountValue }));
+}
+
+function readLastCoupon() {
+  try {
+    const raw = localStorage.getItem(LAST_COUPON_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export const DiscountAPI = {
   async getStatus() {
     await wait(150);
@@ -73,7 +94,12 @@ export const DiscountAPI = {
 
     const cooldown = getCooldownStatus();
     if (cooldown.onCooldown) {
-      return { active: false, onCooldown: true, cooldownEndsAt: cooldown.cooldownEndsAt };
+      return {
+        active: false,
+        onCooldown: true,
+        cooldownEndsAt: cooldown.cooldownEndsAt,
+        lastCoupon: readLastCoupon(),
+      };
     }
 
     return { active: false, onCooldown: false };
@@ -91,11 +117,12 @@ export const DiscountAPI = {
     await wait(500);
     const result = {
       discountValue: MIN_RANGE,
-      couponCode: 'STRIKE' + MIN_RANGE,
+      couponCode: generateCouponCode(MIN_RANGE),
       expiresAt: Date.now() + OFFER_TTL_MS,
     };
     writeOfferState({ solved: false, ...result });
     recordClaim();
+    writeLastCoupon(result.couponCode, result.discountValue);
     return result;
   },
 
@@ -142,14 +169,15 @@ export const DiscountAPI = {
       if (err.isServiceUnavailable) {
         const result = {
           discountValue: MIN_RANGE,
-          couponCode: 'STRIKE' + MIN_RANGE,
+          couponCode: generateCouponCode(MIN_RANGE),
           expiresAt: Date.now() + OFFER_TTL_MS,
         };
         writeOfferState({ solved: false, ...result });
         recordClaim();
+        writeLastCoupon(result.couponCode, result.discountValue);
         return {
           success: true,
-          feedback: "Our AI reviewer is busy right now — here's your discount anyway.",
+          feedback: "Our System is busy right now — here's your discount anyway.",
           ...result,
         };
       }
@@ -164,11 +192,12 @@ export const DiscountAPI = {
 
     const result = {
       discountValue: discountPercent,
-      couponCode: 'STRIKE' + discountPercent,
+      couponCode: generateCouponCode(discountPercent),
       expiresAt: Date.now() + OFFER_TTL_MS,
     };
     writeOfferState({ solved: true, success: true, ...result });
     recordClaim();
+    writeLastCoupon(result.couponCode, result.discountValue);
     return { success: true, feedback, ...result };
   },
 };

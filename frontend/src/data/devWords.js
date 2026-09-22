@@ -1,0 +1,18 @@
+export const devWords = [
+  'docker', 'kubernetes', 'redis', 'node', 'react', 'java', 'python',
+  'devops', 'cicd', 'jenkins', 'terraform', 'ansible', 'nginx', 'graphql',
+  'mongodb', 'postgres', 'kafka', 'zod', 'rust', 'golang', 'typescript',
+  'webpack', 'vite', 'linux', 'bash', 'grpc', 'oauth', 'jwt', 'oop',
+  'aws', 'azure', 'gcp', 'helm', 'istio', 'prometheus', 'grafana',
+  'elastic', 'rabbitmq', 'sqs', 'lambda', 'vercel', 'nextjs', 'express',
+  'fastapi', 'django', 'flask', 'spring', 'hibernate', 'maven', 'gradle',
+  'npm', 'yarn', 'eslint', 'prettier', 'jest', 'cypress', 'playwright',
+  'webhook', 'cron', 'regex', 'ssh', 'ssl', 'tls', 'cdn', 'dns', 'cors',
+  'websocket', 'protobuf', 'yaml', 'toml', 'dotenv', 'git', 'github',
+  'gitlab', 'bitbucket', 'docker-compose', 'microservice', 'monolith',
+  'kernel', 'firewall', 'loadbalancer', 'sharding', 'replica', 'cluster',
+  'container', 'pipeline', 'sprint', 'agile', 'scrum', 'backlog',
+  'commit', 'branch', 'merge', 'rebase', 'sql', 'nosql', 'cache',
+  'queue', 'thread', 'async', 'promise', 'closure', 'compiler',
+  'interpreter', 'runtime',
+];

@@ -10,7 +10,7 @@ const CHALLENGES = [
     id: 'dsa',
     accent: 'dsa',
     icon: '{ }',
-    title: 'Solve a DSA Problem',
+    title: 'Solve Strikes PTOD',
     desc: 'Solve a coding problem before the timer runs out.',
     meta: ['10–15 min', 'Medium'],
   },
@@ -181,7 +181,7 @@ export default function DiscountChallengeModal({ open, onClose }) {
       timer.stop();
 
       setStage('loading');
-      setLoadingText('// AI is reviewing your solution…');
+      setLoadingText('// Launching Console Result');
 
       const res = await DiscountAPI.completeChallenge(
         task,
@@ -296,7 +296,7 @@ export default function DiscountChallengeModal({ open, onClose }) {
               </button>
 
               <div className="font-display font-bold text-2xl mb-1.5">
-                Choose Your Challenge
+                One challenge. One reward. Your choice.
               </div>
 
               <div className="text-text-dim text-sm">
