@@ -1,10 +1,14 @@
 import { GoogleGenAI } from '@google/genai';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+if (!GEMINI_API_KEY) {
+  throw new Error('VITE_GEMINI_API_KEY is missing');
+}
 const MODEL = 'gemini-3.6-flash';
 
 const ai = new GoogleGenAI({
   apiKey: GEMINI_API_KEY,
+  
 });
 
 function isOverloadedError(err) {
