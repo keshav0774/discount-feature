@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 
-const mentors = [
+export const mentor = [
   {
     id: "rohit",
     name: "Rohit Negi",
@@ -21,7 +22,7 @@ const mentors = [
 
 
 
-function MentorCard({ mentor }) {
+export default function MentorCard({ mentor }) {
   const [flipped, setFlipped] = useState(false);
 
   return (

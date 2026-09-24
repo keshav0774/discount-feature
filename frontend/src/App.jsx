@@ -11,7 +11,7 @@ import MembershipPlans from './components/Membership.jsx';
 import CodeShowcase from './components/CodeShowCase.jsx';
 import CursorGlow from './components/CursorGlow.jsx';
 import PremiumQuestions from './components/PremiumQuestions.jsx';
-import Mentors from './components/Mentors.jsx'
+import MentorCard, {mentor} from './components/Mentors.jsx'
 import { DiscountAPI } from './api/discountApi.js';
 
 export default function App() {
@@ -42,8 +42,11 @@ export default function App() {
       <Courses />
       <FeatureCards />
       <PremiumQuestions/>
-      <Mentors/>
-
+       <section className="flex flex-wrap justify-center gap-8 px-6 py-16">
+        {mentor.map((m) => (
+          <MentorCard key={m.id} mentor={m} />
+        ))}
+      </section>
       <FAQ />
       <Footer />
 
