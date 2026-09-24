@@ -8,7 +8,7 @@ import FAQ from './components/FAQ.jsx';
 import Footer from './components/Footer.jsx';
 import DiscountChallengeModal from './components/DiscountChallengeModal.jsx';
 import MembershipPlans from './components/Membership.jsx';
-import CodeShowcase from './components/CodeShowcase.jsx';
+import CodeShowcase from './components/CodeShowCase.jsx';
 import CursorGlow from './components/CursorGlow.jsx';
 import PremiumQuestions from './components/PremiumQuestions.jsx';
 import Mentors from './components/Mentors.jsx'
