@@ -11,6 +11,7 @@ import MembershipPlans from './components/Membership.jsx';
 import CodeShowcase from './components/CodeShowcase.jsx';
 import CursorGlow from './components/CursorGlow.jsx';
 import PremiumQuestions from './components/PremiumQuestions.jsx';
+import Mentors from './components/Mentors.jsx'
 import { DiscountAPI } from './api/discountApi.js';
 
 export default function App() {
@@ -41,6 +42,8 @@ export default function App() {
       <Courses />
       <FeatureCards />
       <PremiumQuestions/>
+      <Mentors/>
+
       <FAQ />
       <Footer />
 

@@ -164,10 +164,11 @@ function FeatureBox({ children, className = '' }) {
       transition={{ duration: 0.5, ease: 'easeOut' }}
       whileHover={{ y: -4 }}
       className={
-        'relative rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-sm p-6 overflow-hidden ' +
-        'transition-shadow duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.06)] hover:border-white/20 ' +
-        className
-      }
+          'relative overflow-hidden rounded-2xl border border-white/[0.10] bg-[#0b0b0b] p-6 ' +
+          'transition-all duration-300 hover:-translate-y-1 hover:border-white/20 ' +
+          'hover:shadow-[0_0_35px_rgba(255,255,255,0.05)] ' +
+      className
+    }
     >
       {children}
     </motion.div>
@@ -176,9 +177,9 @@ function FeatureBox({ children, className = '' }) {
 
 export default function FeatureCards() {
   return (
-    <section className="py-16 bg-[#0a0a0c] relative">
+    <section className="relative bg-black py-16">
       <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        className="relative mx-auto max-w-[1180px] px-7"
         style={{
           backgroundImage:
             'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
