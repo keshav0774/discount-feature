@@ -18,7 +18,6 @@ export default function App() {
     DiscountAPI.getStatus().then(setBannerStatus);
   }, []);
 
-  
   useEffect(() => {
     refreshStatus();
   }, [refreshStatus]);

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ChallengeCard from './ChallengeCard.jsx';
 import ChallengeTimer from './ChallengeTimer.jsx';
 import DiscountReveal from './DiscountReveal.jsx';
+import TerminalLines from './TerminalLines.jsx';
 import { DiscountAPI } from '../api/discountApi.js';
 import { useCountdown } from '../hooks/useCountdown.js';
 
@@ -40,6 +42,8 @@ const CHALLENGES = [
   },
 ];
 
+const PROTOCOL_LINES = ['scanning...', 'user detected', 'challenge available', 'reward locked'];
+
 function formatCooldownLabel(cooldownEndsAt) {
   const remaining = Math.max(0, cooldownEndsAt - Date.now());
   const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
@@ -47,6 +51,19 @@ function formatCooldownLabel(cooldownEndsAt) {
   if (days > 0) return `${days}d ${hours}h`;
   const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
   return `${hours}h ${minutes}m`;
+}
+
+// small reusable close button used across every stage of the modal
+function CloseButton({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label="Close"
+      className="absolute top-6 right-6 w-8 h-8 rounded-full bg-bg-card border border-border text-text-dim flex items-center justify-center hover:text-text hover:border-border-bright z-10"
+    >
+      ✕
+    </button>
+  );
 }
 
 export default function DiscountChallengeModal({ open, onClose }) {
@@ -57,12 +74,10 @@ export default function DiscountChallengeModal({ open, onClose }) {
   const [result, setResult] = useState(null);
   const [solutionText, setSolutionText] = useState('');
   const [cooldownEndsAt, setCooldownEndsAt] = useState(null);
+  const [selectedChallengeId, setSelectedChallengeId] = useState(null);
 
   const timer = useCountdown(handleTimeout);
 
-  // Whenever the modal opens, check server-of-truth (localStorage) state first —
-  // resume an active coupon, or show the cooldown screen, instead of always
-  // starting from the challenge picker.
   useEffect(() => {
     if (!open) return;
     (async () => {
@@ -82,7 +97,7 @@ export default function DiscountChallengeModal({ open, onClose }) {
         setCooldownEndsAt(status.cooldownEndsAt);
         setStage('cooldown');
       } else {
-        setStage('select');
+        setStage('protocol');
       }
     })();
   }, [open]);
@@ -95,6 +110,7 @@ export default function DiscountChallengeModal({ open, onClose }) {
     setSolutionText('');
     setLoadingText('');
     setCooldownEndsAt(null);
+    setSelectedChallengeId(null);
     timer.stop();
   }
 
@@ -160,6 +176,12 @@ export default function DiscountChallengeModal({ open, onClose }) {
 
       setStage('select');
     }
+  }
+
+ 
+  function confirmChallengeSelection() {
+    if (!selectedChallengeId) return;
+    handleSelectChallenge(selectedChallengeId);
   }
 
   function handleTimeout() {
@@ -238,7 +260,7 @@ export default function DiscountChallengeModal({ open, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[500] bg-black/70 backdrop-blur-sm flex items-center sm:items-center justify-center p-0 sm:p-6"
+      className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-sm flex items-center sm:items-center justify-center p-0 sm:p-6"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           handleClose();
@@ -250,21 +272,102 @@ export default function DiscountChallengeModal({ open, onClose }) {
         aria-modal="true"
         className="relative bg-bg-elevated border border-border-bright rounded-t-[20px] sm:rounded-lg w-full sm:max-w-[760px] max-h-[92vh] sm:max-h-[88vh] overflow-y-auto shadow-2xl animate-modal-in"
       >
-        {/* =========================
-            COOLDOWN (already claimed)
-        ========================== */}
+      
+
+        {stage === 'protocol' && (
+  <div className="relative px-6 sm:px-10 py-14 sm:py-16 text-center overflow-hidden">
+    <CloseButton onClick={handleClose} />
+
+    <div className="absolute inset-0 pointer-events-none">
+      <motion.div
+        className="absolute left-1/2 top-1/2 w-64 h-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.035] blur-3xl"
+        animate={{
+          scale: [0.8, 1.15, 0.8],
+          opacity: [0.2, 0.45, 0.2],
+        }}
+        transition={{
+          duration: 3.5,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+    </div>
+
+    <div className="relative mx-auto w-full max-w-[390px]">
+      <div className="font-mono text-[9px] tracking-[0.25em] text-text-faint mb-4">
+        UNKNOWN SIGNAL DETECTED
+      </div>
+
+      <div className="relative h-[250px] flex items-center justify-center">
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full border border-white/10"
+            style={{
+              width: `${130 + i * 45}px`,
+              height: `${130 + i * 45}px`,
+            }}
+            animate={{
+              scale: [0.92, 1.04, 0.92],
+              opacity: [0.18, 0.45, 0.18],
+              rotate: i % 2 ? -360 : 360,
+            }}
+            transition={{
+              scale: {
+                duration: 3,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              },
+              opacity: {
+                duration: 3,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              },
+              rotate: {
+                duration: 18 + i * 4,
+                repeat: Infinity,
+                ease: 'linear',
+              },
+            }}
+          />
+        ))}
+
+        <div className="relative z-10 bg-[#050505] border border-border-bright rounded-md p-6 w-[230px] text-left shadow-[0_25px_80px_rgba(0,0,0,0.6)]">
+          <div className="font-mono text-[10px] text-text-faint tracking-[0.15em] mb-3">
+            REWARD PROTOCOL
+            <span className="text-text-dim"> // LOCKED</span>
+          </div>
+
+          <TerminalLines lines={PROTOCOL_LINES} />
+        </div>
+      </div>
+
+      <div className="font-mono text-[9px] text-text-faint tracking-[0.12em] mb-5">
+        COMPLETE ONE PATH TO ACCESS YOUR REWARD
+      </div>
+
+      <button
+        onClick={() => setStage('select')}
+        className="font-semibold text-[13.5px] bg-white text-black px-7 py-3 rounded-full hover:opacity-90 transition-opacity"
+      >
+        INITIALIZE →
+      </button>
+    </div>
+  </div>
+)}
+
 
         {stage === 'cooldown' && (
-          <div className="px-8 py-16 text-center">
-            <button
-              onClick={handleClose}
-              aria-label="Close"
-              className="absolute top-6 right-6 w-8 h-8 rounded-full bg-bg-card border border-border text-text-dim flex items-center justify-center hover:text-text hover:border-border-bright"
-            >
-              ✕
-            </button>
+          <div className="px-8 py-16 text-center relative">
+            <CloseButton onClick={handleClose} />
 
-            <div className="text-3xl mb-4">🔒</div>
+            <div className="w-[70px] h-[70px] mx-auto mb-5 rounded-full border border-border-bright bg-bg-card flex items-center justify-center text-2xl">
+              🔒
+            </div>
+
+            <div className="font-mono text-[11px] text-text-faint tracking-wide mb-2">
+              REWARD PROTOCOL // LOCKED
+            </div>
 
             <div className="font-display font-bold text-xl mb-2">
               You've already claimed your discount
@@ -280,154 +383,403 @@ export default function DiscountChallengeModal({ open, onClose }) {
           </div>
         )}
 
-        {/* =========================
-            SELECT CHALLENGE
-        ========================== */}
+        
 
         {stage === 'select' && (
-          <>
-            <div className="px-8 pt-8 pb-2 relative">
-              <button
-                onClick={handleClose}
-                aria-label="Close"
-                className="absolute top-6 right-6 w-8 h-8 rounded-full bg-bg-card border border-border text-text-dim flex items-center justify-center hover:text-text hover:border-border-bright"
-              >
-                ✕
-              </button>
+  <>
+    {/* Header */}
+    <div className="relative px-6 sm:px-8 pt-7 pb-3">
+      <CloseButton onClick={handleClose} />
 
-              <div className="font-display font-bold text-2xl mb-1.5">
-                One challenge. One reward. Your choice.
-              </div>
+      {/* protocol status */}
+      <div className="flex items-center gap-2 mb-5">
+        <span className="font-mono text-[9px] tracking-[0.2em] text-text-faint">
+          REWARD PROTOCOL
+        </span>
 
-              <div className="text-text-dim text-sm">
-                Complete any one challenge to unlock your exclusive
-                discount.
-              </div>
-            </div>
+        <span className="font-mono text-[8px] tracking-wide text-success bg-success/10 border border-success/30 px-2 py-0.5 rounded-full">
+          STATUS: ACTIVE
+        </span>
+      </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 px-8 pt-6 pb-3">
-              {CHALLENGES.map((challenge) => (
-                <ChallengeCard
-                  key={challenge.id}
-                  {...challenge}
-                  onSelect={handleSelectChallenge}
-                />
-              ))}
-            </div>
+      {/* terminal lines */}
+      <div className="mb-7">
+        <TerminalLines
+          lines={PROTOCOL_LINES}
+          className="text-[10px] leading-[1.7]"
+        />
+      </div>
 
-            {taskError && (
-              <div className="mx-8 mb-3 bg-danger/10 border border-danger/30 text-danger text-[12.5px] px-3.5 py-2.5 rounded-sm">
-                {taskError}
-              </div>
-            )}
+      {/* heading */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <div className="font-mono text-[9px] tracking-[0.22em] text-text-faint mb-2">
+            REWARD PROTOCOL // ACCESS PATHS 04
+          </div>
 
-            <div className="px-8 pt-5 pb-7 border-t border-border mt-2 flex items-center justify-between flex-wrap gap-3">
-              <span className="text-[12.5px] text-text-faint">
-                A new problem is picked for you every day.
-              </span>
+          <div className="font-display font-bold text-xl sm:text-2xl mb-2">
+            Choose your unlock path
+          </div>
 
-              <button
-                onClick={handleSkip}
-                className="text-text-dim underline underline-offset-4 decoration-border-bright hover:text-text hover:decoration-text-dim text-sm font-semibold"
-              >
-                Skip &amp; Get 20% OFF
-              </button>
-            </div>
-          </>
+          <div className="text-text-dim text-[12.5px]">
+            Complete one developer challenge to unlock your reward.
+          </div>
+        </div>
+
+        <div className="hidden sm:block font-mono text-[8px] text-text-faint tracking-[0.15em] whitespace-nowrap">
+          4 PATHS // 1 REWARD
+        </div>
+      </div>
+
+      <div className="text-text-dim text-[12px] mt-3">
+        Select one challenge, then confirm to begin.
+      </div>
+    </div>
+
+    {/* challenge paths */}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 px-6 sm:px-8 pt-5 pb-4">
+      {CHALLENGES.map((challenge) => (
+        <ChallengeCard
+          key={challenge.id}
+          {...challenge}
+          selected={selectedChallengeId === challenge.id}
+          onSelect={setSelectedChallengeId}
+        />
+      ))}
+    </div>
+
+    {/* error */}
+    {taskError && (
+      <div className="mx-6 sm:mx-8 mb-3 bg-danger/10 border border-danger/30 text-danger text-[12px] px-3.5 py-2.5 rounded-sm">
+        {taskError}
+      </div>
+    )}
+
+    {/* start */}
+    <div className="px-6 sm:px-8 pb-4">
+      <motion.button
+        onClick={confirmChallengeSelection}
+        disabled={!selectedChallengeId}
+        whileHover={selectedChallengeId ? { scale: 1.005 } : undefined}
+        whileTap={selectedChallengeId ? { scale: 0.995 } : undefined}
+        className={
+          'relative w-full overflow-hidden font-semibold text-[13px] ' +
+          'py-3 rounded-full transition-all duration-300 ' +
+          (selectedChallengeId
+            ? 'bg-white text-black shadow-[0_0_25px_rgba(255,255,255,0.12)] hover:shadow-[0_0_35px_rgba(255,255,255,0.2)]'
+            : 'bg-[#555] text-[#151515] opacity-70 cursor-not-allowed')
+        }
+      >
+        {selectedChallengeId && (
+          <motion.span
+            className="absolute inset-y-0 w-20 bg-white/40 blur-xl"
+            initial={{ x: '-120%' }}
+            animate={{ x: '500%' }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              repeatDelay: 1,
+              ease: 'linear',
+            }}
+          />
         )}
+
+        <span className="relative">
+          START CHALLENGE →
+        </span>
+      </motion.button>
+    </div>
+
+    {/* footer */}
+    <div className="px-6 sm:px-8 pt-4 pb-6 border-t border-border mt-1 flex items-center justify-between flex-wrap gap-3">
+      <span className="text-[11px] text-text-faint">
+        A new problem is picked for you every day.
+      </span>
+
+      <button
+        onClick={handleSkip}
+        className="text-text-dim underline underline-offset-4 decoration-border-bright hover:text-text hover:decoration-text-dim text-[12px] font-semibold transition-colors"
+      >
+        Skip &amp; Get 20% OFF
+      </button>
+    </div>
+  </>
+)}
 
        
-
         {stage === 'loading' && (
-          <div className="py-16 px-8 text-center">
-            <div className="w-8 h-8 rounded-full border-2 border-border border-t-accent mx-auto mb-4 animate-spin-load" />
+  <div className="relative min-h-[360px] flex flex-col items-center justify-center px-8 overflow-hidden">
+    {/* Ambient signal */}
+    <motion.div
+      className="absolute w-40 h-40 rounded-full bg-white/[0.035] blur-3xl"
+      animate={{
+        scale: [0.8, 1.15, 0.8],
+        opacity: [0.2, 0.45, 0.2],
+      }}
+      transition={{
+        duration: 2.8,
+        repeat: Infinity,
+        ease: 'easeInOut',
+      }}
+    />
 
-            <p className="text-text-faint text-[13px] font-mono">
-              {loadingText}
-            </p>
-          </div>
-        )}
+    {/* Radar rings */}
+    <div className="relative w-24 h-24 flex items-center justify-center mb-7">
+      {[0, 0.8, 1.6].map((delay, index) => (
+        <motion.div
+          key={index}
+          className="absolute rounded-full border border-white/15"
+          style={{
+            width: `${48 + index * 22}px`,
+            height: `${48 + index * 22}px`,
+          }}
+          animate={{
+            scale: [0.8, 1.25],
+            opacity: [0.45, 0],
+          }}
+          transition={{
+            duration: 2.2,
+            repeat: Infinity,
+            ease: 'easeOut',
+            delay,
+          }}
+        />
+      ))}
 
-        {/* =========================
-            RUN CHALLENGE
-        ========================== */}
+      {/* Core */}
+      <motion.div
+        className="relative z-10 w-10 h-10 rounded-full border border-white/30 bg-white/[0.04] flex items-center justify-center"
+        animate={{
+          boxShadow: [
+            '0 0 0 rgba(255,255,255,0)',
+            '0 0 25px rgba(255,255,255,0.15)',
+            '0 0 0 rgba(255,255,255,0)',
+          ],
+        }}
+        transition={{
+          duration: 1.8,
+          repeat: Infinity,
+        }}
+      >
+        <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
+      </motion.div>
+    </div>
 
+    {/* Protocol label */}
+    <div className="font-mono text-[9px] tracking-[0.22em] text-text-faint mb-3">
+      REWARD PROTOCOL // PROCESSING
+    </div>
+
+    {/* Dynamic loading message */}
+    <motion.div
+      key={loadingText}
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="font-mono text-[12px] text-text-dim text-center"
+    >
+      <span className="text-text-faint">&gt;</span>{' '}
+      {loadingText.replace(/^\/\/\s*/, '')}
+      <motion.span
+        animate={{ opacity: [0, 1, 0] }}
+        transition={{
+          duration: 0.9,
+          repeat: Infinity,
+        }}
+      >
+        _
+      </motion.span>
+    </motion.div>
+
+    {/* Processing line */}
+    <div className="w-[220px] h-px bg-border mt-5 overflow-hidden">
+      <motion.div
+        className="h-full bg-white/50"
+        initial={{ x: '-100%' }}
+        animate={{ x: '100%' }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: 'linear',
+        }}
+      />
+    </div>
+  </div>
+)}
         {stage === 'run' && task && problem && (
-          <div className="px-8 pt-7 pb-8">
-            <div className="flex items-center justify-between mb-[18px]">
-              <button
-                onClick={() => {
-                  reset();
-                }}
-                className="text-text-faint text-[13px] hover:text-text-dim bg-transparent border-none"
-              >
-                ← Back to challenges
-              </button>
+  <div className="px-5 sm:px-8 pt-6 pb-8">
 
-              <ChallengeTimer
-                label={timer.label}
-                urgent={timer.remaining <= 30}
-              />
-            </div>
+    {/* Top navigation / timer */}
+    <div className="flex items-center justify-between mb-6">
+      <button
+        onClick={() => {
+          reset();
+        }}
+        className="group flex items-center gap-2 font-mono text-[10px] tracking-wide text-text-faint hover:text-text transition-colors bg-transparent border-none"
+      >
+        <span className="text-text-dim group-hover:-translate-x-0.5 transition-transform">
+          ←
+        </span>
+        BACK TO CHALLENGES
+      </button>
 
-            <div className="font-display font-bold text-lg mb-2">
-              {problem.title}
-            </div>
+      <ChallengeTimer
+        label={timer.label}
+        urgent={timer.remaining <= 30}
+      />
+    </div>
 
-            <div className="bg-[#0a0a0c] border border-border rounded-md p-[18px] text-[13.5px] text-text-dim leading-relaxed mb-4">
-              {statementText}
-            </div>
+    {/* Protocol header */}
+    <div className="flex items-end justify-between gap-4 mb-4">
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
 
-            {problem.code && (
-              <pre className="bg-[#0a0a0c] border border-border rounded-md p-[18px] font-mono text-[12px] text-text-dim leading-relaxed mb-4 overflow-x-auto whitespace-pre">
-                {problem.code.trim()}
-              </pre>
-            )}
+          <span className="font-mono text-[9px] tracking-[0.2em] text-text-faint">
+            REWARD PROTOCOL // CHALLENGE ACTIVE
+          </span>
+        </div>
 
-            {taskError && (
-              <div className="bg-danger/10 border border-danger/30 text-danger text-[12.5px] px-3.5 py-2.5 rounded-sm mt-1 mb-4">
-                {taskError}
-              </div>
-            )}
+        <h2 className="font-display font-bold text-xl sm:text-2xl text-text">
+          {problem.title}
+        </h2>
+      </div>
 
-            <p className="text-text-faint text-[12px] mb-3">
-              Work through this challenge on your own, then submit
-              your answer to unlock your discount.
-            </p>
+      <span className="hidden sm:block font-mono text-[9px] tracking-[0.15em] text-text-faint">
+        SOLUTION REQUIRED
+      </span>
+    </div>
 
-            <textarea
-              value={solutionText}
-              onChange={(e) => {
-                setSolutionText(e.target.value);
-                setTaskError('');
-              }}
-              placeholder="Write your solution here..."
-              className="w-full min-h-[220px] bg-[#0a0a0c] border border-border rounded-md p-4 font-mono text-[13px] text-text-dim outline-none focus:border-border-bright resize-y"
-              spellCheck={false}
-            />
+    {/* Problem statement */}
+    <div className="relative bg-[#050505] border border-border-bright rounded-md p-5 mb-4 overflow-hidden">
 
-            <div className="flex gap-3 mt-4">
-              <button
-                onClick={() => {
-                  reset();
-                }}
-                className="flex-1 text-center py-3 rounded-sm bg-bg-card text-text-dim border border-border hover:text-text hover:border-border-bright"
-              >
-                Cancel
-              </button>
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-              <button
-                onClick={handleSubmitSolution}
-                disabled={!solutionText.trim()}
-                className="flex-1 text-center py-3 rounded-sm font-semibold bg-text text-bg transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Submit Solution
-              </button>
-            </div>
+      <div className="font-mono text-[9px] tracking-[0.18em] text-text-faint mb-3">
+        PROBLEM // STATEMENT
+      </div>
+
+      <div className="text-[13px] sm:text-[13.5px] text-text-dim leading-[1.8]">
+        {statementText}
+      </div>
+    </div>
+
+    {/* Code block */}
+    {problem.code && (
+      <div className="relative bg-[#050505] border border-border-bright rounded-md mb-4 overflow-hidden">
+
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-[#080808]">
+          <span className="font-mono text-[9px] tracking-[0.16em] text-text-faint">
+            SOURCE // CODE
+          </span>
+
+          <div className="flex gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+            <span className="w-1.5 h-1.5 rounded-full bg-white/10" />
+            <span className="w-1.5 h-1.5 rounded-full bg-white/10" />
           </div>
-        )}
+        </div>
 
-        
+        <pre className="p-4 sm:p-[18px] font-mono text-[11.5px] sm:text-[12px] text-text-dim leading-[1.7] overflow-x-auto whitespace-pre">
+          {problem.code.trim()}
+        </pre>
+      </div>
+    )}
+
+    {/* Error / feedback */}
+    {taskError && (
+      <motion.div
+        initial={{ opacity: 0, y: -4 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative bg-danger/5 border border-danger/30 text-danger text-[12px] px-4 py-3 rounded-md mt-1 mb-4"
+      >
+        <div className="font-mono text-[9px] tracking-[0.15em] mb-1 opacity-70">
+          VALIDATION // FEEDBACK
+        </div>
+
+        {taskError}
+      </motion.div>
+    )}
+
+    {/* Solution console */}
+    <div className="relative bg-[#050505] border border-border-bright rounded-md overflow-hidden">
+
+      {/* Console header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-[#080808]">
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-white/60" />
+
+          <span className="font-mono text-[9px] tracking-[0.18em] text-text-faint">
+            SOLUTION // CONSOLE
+          </span>
+        </div>
+
+        <span className="font-mono text-[8px] text-text-faint">
+          INPUT REQUIRED
+        </span>
+      </div>
+
+      {/* Instruction */}
+      <div className="px-4 pt-4">
+        <p className="font-mono text-[10.5px] text-text-faint leading-relaxed mb-3">
+          &gt; Work through the challenge and submit your solution
+          to unlock the reward.
+        </p>
+      </div>
+
+      {/* Textarea */}
+      <div className="px-4 pb-4">
+        <textarea
+          value={solutionText}
+          onChange={(e) => {
+            setSolutionText(e.target.value);
+            setTaskError('');
+          }}
+          placeholder="// write your solution here..."
+          className="w-full min-h-[220px] bg-[#030303] border border-border rounded-md p-4 font-mono text-[12.5px] text-text-dim leading-relaxed outline-none focus:border-white/30 focus:ring-1 focus:ring-white/5 placeholder:text-text-faint/50 resize-y transition-all"
+          spellCheck={false}
+        />
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-col-reverse sm:flex-row gap-2.5 px-4 pb-4">
+
+        <button
+          onClick={() => {
+            reset();
+          }}
+          className="flex-1 text-center py-3 rounded-md font-mono text-[11px] tracking-wide bg-bg-card text-text-dim border border-border hover:text-text hover:border-border-bright transition-colors"
+        >
+          CANCEL
+        </button>
+
+        <button
+          onClick={handleSubmitSolution}
+          disabled={!solutionText.trim()}
+          className="group flex-1 flex items-center justify-center gap-2 py-3 rounded-md font-semibold text-[12px] bg-white text-black transition-all hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          SUBMIT SOLUTION
+
+          <span className="group-hover:translate-x-0.5 transition-transform">
+            →
+          </span>
+        </button>
+
+      </div>
+    </div>
+
+    {/* Bottom protocol status */}
+    <div className="flex items-center justify-between mt-4 px-1">
+      <span className="font-mono text-[8.5px] tracking-[0.12em] text-text-faint">
+        REWARD STATUS // LOCKED
+      </span>
+
+      <span className="font-mono text-[8.5px] tracking-[0.12em] text-text-faint">
+        SUBMIT TO VERIFY
+      </span>
+    </div>
+
+  </div>
+)}
 
         {stage === 'reveal' && result && (
           <DiscountReveal
