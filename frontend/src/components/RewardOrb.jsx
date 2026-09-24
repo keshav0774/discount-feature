@@ -77,7 +77,19 @@ export default function RewardOrb({ onClick }) {
                 BOY
                 <br />
                 <span className="text-text-faint/50">
-                  IMAGE
+                   <motion.img
+      src="/images/boyy.png"
+      alt="Strike AI"
+      className="relative z-10 w-[95px] h-[130px] object-contain select-none pointer-events-none"
+      animate={{
+        y: [0, -5, 0],
+      }}
+      transition={{
+        duration: 3,
+        repeat: Infinity,
+        ease: 'easeInOut',
+      }}
+    />
                 </span>
               </div>
             </div>
@@ -136,7 +148,19 @@ export default function RewardOrb({ onClick }) {
                 BOT
                 <br />
                 <span className="text-text-faint/50">
-                  IMAGE
+                      <motion.img
+                       src="/images/boat.png"
+                        alt="Strike AI"
+                         className="relative z-10 w-[95px] h-[130px] object-contain select-none pointer-events-none"
+                       animate={{
+                       y: [0, -5, 0],
+                      }}
+                    transition={{
+                      duration: 3,
+                       repeat: Infinity,
+                       ease: 'easeInOut',
+                    }}
+                />
                 </span>
               </div>
             </div>
