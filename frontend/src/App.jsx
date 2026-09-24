@@ -7,6 +7,7 @@ import FeatureCards from './components/FeatureCards.jsx';
 import FAQ from './components/FAQ.jsx';
 import Footer from './components/Footer.jsx';
 import DiscountChallengeModal from './components/DiscountChallengeModal.jsx';
+import MembershipPlans from './components/Membership.jsx';
 import CursorGlow from './components/CursorGlow.jsx';
 import { DiscountAPI } from './api/discountApi.js';
 
@@ -33,6 +34,7 @@ export default function App() {
       <Navbar />
       <DiscountBanner onOpen={() => setModalOpen(true)} status={bannerStatus} />
       <Hero />
+      <MembershipPlans/>
       <Courses />
       <FeatureCards />
       <FAQ />
