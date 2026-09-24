@@ -7,6 +7,7 @@ const COURSES = [
     desc: 'Web Development + System Design + Security + DevOps',
     duration: '100 Days',
     live: true,
+    image: "/images/strikePlus.png",
   },
   {
     id: 'devops',
@@ -14,6 +15,7 @@ const COURSES = [
     desc: 'Linux + CI/CD + Docker + Kubernetes + Terraform + Cloud',
     duration: '8 weeks',
     live: true,
+    image: "/images/strikePlus.png",
   },
   {
     id: 'dsa-genai',
@@ -23,6 +25,7 @@ const COURSES = [
     hours: '100+ Hours',
     live: true,
     popular: true,
+    image: "/images/strikePlus.png",
   },
   {
     id: 'dsa',
@@ -31,6 +34,7 @@ const COURSES = [
     duration: '4 months',
     hours: '100+ Hours',
     live: true,
+    image: "/images/strikePlus.png",
   },
   {
     id: 'genai',
@@ -39,6 +43,7 @@ const COURSES = [
     duration: '4 months',
     hours: '50+ Hours',
     live: true,
+    image: "/images/strikePlus.png",
   },
 ];
 
@@ -53,14 +58,16 @@ function CourseCard({ course, index }) {
       className="group relative rounded-md overflow-hidden border border-border bg-bg-card cursor-pointer"
     >
       {/* thumbnail area */}
-      <div className="relative h-[220px] overflow-hidden bg-gradient-to-br from-[#1a1b1f] to-[#0a0a0c]">
-        {/* faint code-rain texture */}
-        <div
-          className="absolute inset-0 opacity-[0.08] font-mono text-[9px] leading-[11px] text-text select-none pointer-events-none whitespace-pre-wrap break-all p-2"
-          aria-hidden="true"
-        >
-          {'getAttribute(node,key){const v=this.state[key];if(v==null)return;} '.repeat(20)}
-        </div>
+      <div className="relative h-[220px] overflow-hidden bg-bg-elevated">
+        <img
+          src={course.image}
+          alt={course.title}
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+        />
+
+        {/* dark gradient overlay so badges/title stay legible over any image */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10" />
 
         <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-danger/90 text-white text-[10px] font-bold px-2.5 py-1 rounded">
           <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />

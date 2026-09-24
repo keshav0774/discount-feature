@@ -8,7 +8,9 @@ import FAQ from './components/FAQ.jsx';
 import Footer from './components/Footer.jsx';
 import DiscountChallengeModal from './components/DiscountChallengeModal.jsx';
 import MembershipPlans from './components/Membership.jsx';
+import CodeShowcase from './components/CodeShowcase.jsx';
 import CursorGlow from './components/CursorGlow.jsx';
+import PremiumQuestions from './components/PremiumQuestions.jsx';
 import { DiscountAPI } from './api/discountApi.js';
 
 export default function App() {
@@ -34,9 +36,11 @@ export default function App() {
       <Navbar />
       <DiscountBanner onOpen={() => setModalOpen(true)} status={bannerStatus} />
       <Hero />
+      <CodeShowcase /> 
       <MembershipPlans/>
       <Courses />
       <FeatureCards />
+      <PremiumQuestions/>
       <FAQ />
       <Footer />
 
