@@ -14,7 +14,7 @@ import PremiumQuestions from './components/PremiumQuestions.jsx';
 import MentorCard, {mentor} from './components/Mentors.jsx'
 import Reviews from './components/ReviewSection.jsx';
 import { DiscountAPI } from './api/discountApi.js';
-
+import StrikeRevealBackground from './components/StrikeRevealBackground.jsx';
 export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [bannerStatus, setBannerStatus] = useState(null); // null = still loading
@@ -36,9 +36,14 @@ export default function App() {
     <div className="min-h-screen">
       <CursorGlow />
       <Navbar />
+      
+     
+     <StrikeRevealBackground>
       <DiscountBanner onOpen={() => setModalOpen(true)} status={bannerStatus} />
       <Hero />
-      <CodeShowcase /> 
+      <CodeShowcase />
+      </StrikeRevealBackground>
+
       <MembershipPlans/>
       <Courses />
       <FeatureCards />
