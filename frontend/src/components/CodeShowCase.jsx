@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState , useEffect} from 'react';
 import { motion } from 'framer-motion';
 
 const SUGGESTIONS = [
@@ -35,6 +35,8 @@ const THOUGHTS = [
 ];
 
 function CodeLines() {
+  const [visibleLines, setVisibleLines] = useState(0);
+
   const kw = 'text-[#c586c0]';
   const fn = 'text-[#dcdcaa]';
   const str = 'text-[#ce9178]';
@@ -42,28 +44,149 @@ function CodeLines() {
   const plain = 'text-text';
 
   const lines = [
-    <span key={1} className={cm}>// Strike Platform - Welcome Code</span>,
-    <span key={2}><span className={kw}>const</span> <span className={plain}>welcome</span> = <span className={kw}>async</span> <span className={plain}>() =&gt; {'{'}</span></span>,
-    <span key={3}>&nbsp;&nbsp;<span className={kw}>const</span> <span className={plain}>user</span> = <span className={kw}>await</span> <span className={fn}>getUser</span><span className={plain}>();</span></span>,
-    <span key={4}>&nbsp;&nbsp;<span className={fn}>console.log</span><span className={plain}>(</span><span className={str}>`Welcome ${'{'}user.name{'}'}!`</span><span className={plain}>);</span></span>,
-    <span key={5}>&nbsp;&nbsp;<span className={fn}>console.log</span><span className={plain}>(</span><span className={str}>`Level: ${'{'}user.level{'}'}`</span><span className={plain}>);</span></span>,
-    <span key={6}>&nbsp;&nbsp;<span className={kw}>return</span><span className={plain}> {'{'} status: </span><span className={str}>"success"</span><span className={plain}> {'}'};</span></span>,
-    <span key={7}><span className={plain}>{'}'};</span></span>,
-    <span key={8}>&nbsp;</span>,
-    <span key={9}><span className={kw}>const</span> <span className={plain}>getUser</span> = <span className={kw}>async</span> <span className={plain}>() =&gt; ({'{'}</span></span>,
-    <span key={10}>&nbsp;&nbsp;<span className={plain}>name: </span><span className={str}>"Keshav Mishra"</span><span className={plain}>,</span></span>,
-    <span key={11}>&nbsp;&nbsp;<span className={plain}>level: </span><span className={str}>"Beginner"</span><span className={plain}>,</span></span>,
-    <span key={12}><span className={plain}>{'}'});</span></span>,
-    <span key={13}>&nbsp;</span>,
-    <span key={14}><span className={fn}>welcome</span><span className={plain}>();</span></span>,
+    <span className={cm}>// Strike Platform - Welcome Code</span>,
+
+    <span>
+      <span className={kw}>const</span>{' '}
+      <span className={plain}>welcome</span> ={' '}
+      <span className={kw}>async</span>{' '}
+      <span className={plain}>() =&gt; {'{'}</span>
+    </span>,
+
+    <span>
+      &nbsp;&nbsp;
+      <span className={kw}>const</span>{' '}
+      <span className={plain}>user</span> ={' '}
+      <span className={kw}>await</span>{' '}
+      <span className={fn}>getUser</span>
+      <span className={plain}>();</span>
+    </span>,
+
+    <span>
+      &nbsp;&nbsp;
+      <span className={fn}>console.log</span>
+      <span className={plain}>(</span>
+      <span className={str}>
+        `Welcome ${'{'}user.name{'}'}!`
+      </span>
+      <span className={plain}>);</span>
+    </span>,
+
+    <span>
+      &nbsp;&nbsp;
+      <span className={fn}>console.log</span>
+      <span className={plain}>(</span>
+      <span className={str}>
+        `Level: ${'{'}user.level{'}'}`
+      </span>
+      <span className={plain}>);</span>
+    </span>,
+
+    <span>
+      &nbsp;&nbsp;
+      <span className={kw}>return</span>
+      <span className={plain}> {'{'} status: </span>
+      <span className={str}>"success"</span>
+      <span className={plain}> {'}'};</span>
+    </span>,
+
+    <span className={plain}>{'}'};</span>,
+
+    <span>&nbsp;</span>,
+
+    <span>
+      <span className={kw}>const</span>{' '}
+      <span className={plain}>getUser</span> ={' '}
+      <span className={kw}>async</span>{' '}
+      <span className={plain}>() =&gt; ({'{'}</span>
+    </span>,
+
+    <span>
+      &nbsp;&nbsp;
+      <span className={plain}>name: </span>
+      <span className={str}>"Keshav Mishra"</span>
+      <span className={plain}>,</span>
+    </span>,
+
+    <span>
+      &nbsp;&nbsp;
+      <span className={plain}>level: </span>
+      <span className={str}>"Beginner"</span>
+      <span className={plain}>,</span>
+    </span>,
+
+    <span className={plain}>{'}'});</span>,
+
+    <span>&nbsp;</span>,
+
+    <span>
+      <span className={fn}>welcome</span>
+      <span className={plain}>();</span>
+    </span>,
   ];
+
+  useEffect(() => {
+    let timer;
+
+    if (visibleLines < lines.length) {
+      // Show next line
+      timer = setTimeout(() => {
+        setVisibleLines((prev) => prev + 1);
+      }, 300);
+    } else {
+      // Code complete → wait → restart
+      timer = setTimeout(() => {
+        setVisibleLines(0);
+      }, 2500);
+    }
+
+    return () => clearTimeout(timer);
+  }, [visibleLines, lines.length]);
 
   return (
     <>
       {lines.map((content, i) => (
-        <div key={i} className="flex gap-4">
-          <span className="text-text-faint select-none w-5 text-right shrink-0">{i + 1}</span>
-          <span className="whitespace-pre">{content}</span>
+        <div
+          key={i}
+          className="flex gap-4 min-h-[24px]"
+        >
+          <span className="text-text-faint select-none w-5 text-right shrink-0">
+            {i + 1}
+          </span>
+
+          {i < visibleLines && (
+            <motion.span
+              initial={{
+                opacity: 0,
+                y: 3,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                duration: 0.18,
+              }}
+              className="whitespace-pre"
+            >
+              {content}
+
+              {/* Cursor only on latest line */}
+              {i === visibleLines - 1 &&
+                visibleLines < lines.length && (
+                  <motion.span
+                    animate={{
+                      opacity: [1, 0, 1],
+                    }}
+                    transition={{
+                      duration: 0.7,
+                      repeat: Infinity,
+                    }}
+                    className="inline-block ml-1 w-[6px] h-[14px] bg-white align-middle"
+                  />
+                )}
+            </motion.span>
+          )}
         </div>
       ))}
     </>
