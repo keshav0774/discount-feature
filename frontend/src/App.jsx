@@ -12,6 +12,7 @@ import CodeShowcase from './components/CodeShowCase.jsx';
 import CursorGlow from './components/CursorGlow.jsx';
 import PremiumQuestions from './components/PremiumQuestions.jsx';
 import MentorCard, {mentor} from './components/Mentors.jsx'
+import Reviews from './components/ReviewSection.jsx';
 import { DiscountAPI } from './api/discountApi.js';
 
 export default function App() {
@@ -47,6 +48,7 @@ export default function App() {
           <MentorCard key={m.id} mentor={m} />
         ))}
       </section>
+        <Reviews/>
       <FAQ />
       <Footer />
 
